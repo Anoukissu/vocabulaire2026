@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jeu de vocabulaire</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #FFF9F0;
+    --card-bg: #ffffff;
+    --text: #2d2416;
+    --muted: #7a6a55;
+    --accent: #FF6B35;
+    --accent2: #4ECDC4;
+    --accent3: #FFD166;
+    --shadow: 0 4px 20px rgba(0,0,0,0.10);
+    --shadow-hover: 0 8px 32px rgba(0,0,0,0.18);
+    --radius: 20px;
+  }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    padding: 40px 20px 60px;
+    background-image:
+      radial-gradient(circle at 10% 20%, rgba(255,107,53,0.08) 0%, transparent 50%),
+      radial-gradient(circle at 90% 80%, rgba(78,205,196,0.08) 0%, transparent 50%),
+      radial-gradient(circle at 50% 50%, rgba(255,209,102,0.06) 0%, transparent 70%);
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+
+  h1 {
+    font-family: 'Baloo 2', cursive;
+    font-size: clamp(2.2rem, 6vw, 3.5rem);
+    font-weight: 800;
+    color: var(--text);
+    line-height: 1.1;
+    margin-bottom: 10px;
+  }
+
+  h1 span {
+    color: var(--accent);
+  }
+
+  .subtitle {
+    font-size: 1.1rem;
+    color: var(--muted);
+    font-weight: 600;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+    max-width: 960px;
+    margin: 0 auto;
+  }
+
+  .card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 28px 24px 20px;
+    box-shadow: var(--shadow);
+    border: 2px solid transparent;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-hover);
+    border-color: rgba(255,107,53,0.2);
+  }
+
+  .card-emoji {
+    font-size: 3rem;
+    line-height: 1;
+    display: block;
+  }
+
+  .card-title {
+    font-family: 'Baloo 2', cursive;
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: var(--text);
+  }
+
+  .card-count {
+    font-size: 0.85rem;
+    color: var(--muted);
+    font-weight: 600;
+  }
+
+  .card-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 18px;
+    border-radius: 50px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+    transition: transform 0.15s, box-shadow 0.15s, filter 0.15s;
+    white-space: nowrap;
+  }
+
+  .btn:hover { transform: scale(1.05); filter: brightness(1.05); }
+  .btn:active { transform: scale(0.97); }
+
+  .btn-play {
+    background: var(--accent);
+    color: white;
+    box-shadow: 0 3px 10px rgba(255,107,53,0.35);
+    flex: 1;
+    justify-content: center;
+  }
+
+  .btn-eval {
+    background: var(--accent2);
+    color: white;
+    box-shadow: 0 3px 10px rgba(78,205,196,0.35);
+    flex: 1;
+    justify-content: center;
+  }
+
+  .stars-decoration {
+    text-align: center;
+    font-size: 1.5rem;
+    margin-bottom: 8px;
+    opacity: 0.5;
+  }
+
+  @media (max-width: 400px) {
+    .card-actions { flex-direction: column; }
+    .btn { width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <p class="stars-decoration">✦ ✧ ✦ ✧ ✦</p>
+  <h1>Jeu de <span>vocabulaire</span> 🎉</h1>
+  <p class="subtitle">Choisis un corpus pour jouer !</p>
+</header>
+
+<div class="grid" id="corpus-grid"></div>
+
+<script>
+const CORPUS = [
+  {
+    id: "recette",
+    emoji: "🍰",
+    title: "La recette",
+    words: ["farine","oeuf","beurre","levure","sucre","sucré vanillé","épices","cannelle","cacao","chocolat","poudre d'amande","fleur d'oranger","miel","lait","gâteau","biscuits","frangipane","marbré","sablés","pâte","balance","verre doseur","saladier","bol","rouleau","fouet","emporte-pièce","cuillère","spatule","moule","fouetter","rouler/étaler","enfourner","pétrir/malaxer","verser","mélanger","sucré","salé","délicieux","dégoûtant"]
+  },
+  {
+    id: "classe",
+    emoji: "✏️",
+    title: "La classe",
+    words: ["crayon à papier","colle","crayon de couleur","feutre","gomme","bouchon/capuchon","peinture","ardoise","feutre effaçable","aimant","ciseaux","pinceaux","tableau","livre","dé","encre","porte-vue","classeur","table","casier","bureau","banc","chaise","poubelle","cartes","perles","jetons","dominos","présent/absent","assis(e)/debout","lettres","chiffres/nombres","graphismes","écrire","lire","compter","entourer","dessiner","coller","découper"]
+  },
+  {
+    id: "hiver",
+    emoji: "❄️",
+    title: "L'hiver",
+    words: ["flocon","température","verglas","givre","fourrure","mangeoire","cheminée","oranger","citronnier","galette","fève/sujet","couronne","bourgeons","gants","moufles","écharpe","cache-cou","arbre d'hiver","tronc","recouvert(e)","large","fin/fine","glissant(e)","givré(e)","frigorifié(e)","froid","chaud","hiberner/hiverner","se couvrir","geler","glisser","lentement"]
+  },
+  {
+    id: "navet",
+    emoji: "🥕",
+    title: "Le navet géant",
+    words: ["bois","bonhomme","femme","mari","fromages","grand-mère/père","herbe","histoire","idée","jardin","jour","journée","légume(s)","humeur","matin","mois","morceau/bout","pomme de terre","soir","bec","aliment","navet","carotte","champ","chasseur","corde","épluchure","graines","haricots","part","potager","paysan(nes)","s'accrocher","semer","tirer","chasser","mauve","puissant(e)","géant","vieux/vieille"]
+  },
+  {
+    id: "espace",
+    emoji: "🌟",
+    title: "L'espace gentillesse",
+    words: []
+  },
+  {
+    id: "boucle",
+    emoji: "👱‍♀️",
+    title: "Boucle d'or",
+    words: []
+  },
+  {
+    id: "reine",
+    emoji: "🧙‍♀️",
+    title: "La reine des sorcières",
+    words: []
+  },
+  {
+    id: "musique",
+    emoji: "🎵",
+    title: "La musique",
+    words: []
+  }
+];
+
+// Save corpus data globally for game.html to read
+localStorage.setItem('corpus_data', JSON.stringify(CORPUS));
+
+const grid = document.getElementById('corpus-grid');
+
+CORPUS.forEach(corpus => {
+  const card = document.createElement('div');
+  card.className = 'card';
+  const count = corpus.words.length;
+  const isEmpty = count === 0;
+
+  card.innerHTML = `
+    <span class="card-emoji">${corpus.emoji}</span>
+    <div>
+      <div class="card-title">${corpus.title}</div>
+      <div class="card-count">${isEmpty ? 'Corpus à compléter' : count + ' mots'}</div>
+    </div>
+    <div class="card-actions">
+      <button class="btn btn-play" ${isEmpty ? 'disabled style="opacity:0.4;cursor:not-allowed"' : ''} onclick="openGame('${corpus.id}')">
+        🎮 Jouer
+      </button>
+      <button class="btn btn-eval" ${isEmpty ? 'disabled style="opacity:0.4;cursor:not-allowed"' : ''} onclick="openEval('${corpus.id}')">
+        📋 Évaluation
+      </button>
+    </div>
+  `;
+  grid.appendChild(card);
+});
+
+function openGame(id) {
+  window.location.href = `game.html?corpus=${id}&mode=play`;
+}
+
+function openEval(id) {
+  window.location.href = `game.html?corpus=${id}&mode=eval`;
+}
+</script>
+</body>
+</html>
