@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jeu de vocabulaire</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #FFF9F0;
+  --card-bg: #ffffff;
+  --text: #2d2416;
+  --muted: #7a6a55;
+  --accent: #FF6B35;
+  --accent2: #4ECDC4;
+  --accent3: #FFD166;
+  --green: #2ecc71;
+  --red: #e74c3c;
+  --shadow: 0 4px 20px rgba(0,0,0,0.10);
+  --radius: 20px;
+}
+
+body {
+  font-family: 'Nunito', sans-serif;
+  background: var(--bg);
+  min-height: 100vh;
+  padding: 20px;
+  background-image:
+    radial-gradient(circle at 10% 20%, rgba(255,107,53,0.06) 0%, transparent 50%),
+    radial-gradient(circle at 90% 80%, rgba(78,205,196,0.06) 0%, transparent 50%);
+  overflow-x: hidden;
+}
+
+/* ===== HEADER ===== */
+.top-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 800px;
+  margin: 0 auto 24px;
+}
+
+.back-btn {
+  background: white;
+  border: 2px solid rgba(0,0,0,0.08);
+  border-radius: 50px;
+  padding: 8px 16px;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  color: var(--text);
+  transition: transform 0.15s;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.back-btn:hover { transform: scale(1.04); }
+
+.corpus-badge {
+  font-family: 'Baloo 2', cursive;
+  font-weight: 800;
+  font-size: 1rem;
+  color: var(--muted);
+  flex: 1;
+}
+
+.score-badge {
+  background: var(--accent3);
+  color: var(--text);
+  padding: 6px 16px;
+  border-radius: 50px;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+/* ===== PLAY MODE ===== */
+#play-screen {
+  max-width: 700px;
+  margin: 0 auto;
+  display: none;
+}
+
+.word-display {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.word-display h2 {
+  font-family: 'Baloo 2', cursive;
+  font-size: clamp(2.5rem, 8vw, 4.5rem);
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1.1;
+  text-shadow: 2px 3px 0 rgba(255,107,53,0.15);
+  transition: opacity 0.3s;
+}
+
+.images-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.img-card {
+  aspect-ratio: 1;
+  border-radius: 18px;
+  overflow: hidden;
+  cursor: pointer;
+  position: relative;
+  border: 3px solid transparent;
+  box-shadow: var(--shadow);
+  transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+  background: #f0e8dc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.img-card:hover {
+  transform: scale(1.04);
+  box-shadow: 0 8px 28px rgba(0,0,0,0.18);
+}
+
+.img-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.img-label {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0,0,0,0.55);
+  color: white;
+  text-align: center;
+  padding: 6px 8px;
+  font-weight: 700;
+  font-size: 0.8rem;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.img-card:hover .img-label { opacity: 1; }
+
+.img-card.correct {
+  border-color: var(--green);
+  box-shadow: 0 0 0 4px rgba(46,204,113,0.3);
+  animation: pulse-green 0.4s ease;
+}
+.img-card.wrong {
+  border-color: var(--red);
+  box-shadow: 0 0 0 4px rgba(231,76,60,0.3);
+  animation: shake 0.4s ease;
+}
+
+.img-card .overlay-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  font-size: 3.5rem;
+  transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  pointer-events: none;
+  z-index: 10;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+.img-card.correct .overlay-icon,
+.img-card.wrong .overlay-icon { transform: translate(-50%, -50%) scale(1); }
+
+.img-placeholder {
+  width: 60%;
+  height: 60%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  color: var(--muted);
+  opacity: 0.4;
+}
+
+/* Progress bar */
+.progress-wrap {
+  background: rgba(0,0,0,0.08);
+  border-radius: 50px;
+  height: 8px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent3));
+  border-radius: 50px;
+  transition: width 0.4s ease;
+}
+.progress-label {
+  text-align: right;
+  font-size: 0.8rem;
+  color: var(--muted);
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+/* ===== REVIEW PANEL (every 5 words) ===== */
+#review-screen {
+  max-width: 700px;
+  margin: 0 auto;
+  display: none;
+  text-align: center;
+}
+
+#review-screen h2 {
+  font-family: 'Baloo 2', cursive;
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 24px;
+}
+
+.review-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.review-item {
+  background: white;
+  border-radius: 16px;
+  padding: 12px 10px;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  animation: pop-in 0.3s ease both;
+}
+
+.review-item:nth-child(1) { animation-delay: 0.05s; }
+.review-item:nth-child(2) { animation-delay: 0.1s; }
+.review-item:nth-child(3) { animation-delay: 0.15s; }
+.review-item:nth-child(4) { animation-delay: 0.2s; }
+.review-item:nth-child(5) { animation-delay: 0.25s; }
+
+.review-item img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.review-item .review-word {
+  font-weight: 800;
+  font-size: 0.85rem;
+  color: var(--text);
+  text-align: center;
+  font-family: 'Baloo 2', cursive;
+}
+
+.btn-continue {
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 50px;
+  padding: 14px 40px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(255,107,53,0.35);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.btn-continue:hover { transform: scale(1.05); box-shadow: 0 6px 20px rgba(255,107,53,0.45); }
+
+/* ===== EVAL MODE ===== */
+#eval-screen {
+  max-width: 500px;
+  margin: 0 auto;
+  display: none;
+  text-align: center;
+}
+
+.eval-image-wrap {
+  background: white;
+  border-radius: 24px;
+  padding: 16px;
+  box-shadow: var(--shadow);
+  margin-bottom: 20px;
+}
+
+.eval-image-wrap img {
+  width: 100%;
+  max-height: 340px;
+  object-fit: contain;
+  border-radius: 14px;
+  display: block;
+}
+
+.eval-image-placeholder {
+  width: 100%;
+  height: 260px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 4rem;
+  color: var(--muted);
+  opacity: 0.3;
+  background: #f5ede0;
+  border-radius: 14px;
+}
+
+.eval-counter {
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 16px;
+  font-size: 0.95rem;
+}
+
+.eval-btns {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+}
+
+.btn-correct {
+  background: var(--green);
+  color: white;
+  border: none;
+  border-radius: 50px;
+  padding: 16px 36px;
+  font-size: 2rem;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(46,204,113,0.4);
+  transition: transform 0.15s;
+}
+.btn-wrong {
+  background: var(--red);
+  color: white;
+  border: none;
+  border-radius: 50px;
+  padding: 16px 36px;
+  font-size: 2rem;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(231,76,60,0.4);
+  transition: transform 0.15s;
+}
+.btn-correct:hover, .btn-wrong:hover { transform: scale(1.08); }
+
+/* ===== RESULT SCREEN ===== */
+#result-screen {
+  max-width: 500px;
+  margin: 0 auto;
+  display: none;
+  text-align: center;
+}
+
+.result-card {
+  background: white;
+  border-radius: 24px;
+  padding: 36px 28px;
+  box-shadow: var(--shadow);
+  margin-bottom: 20px;
+}
+
+.result-emoji {
+  font-size: 4rem;
+  display: block;
+  margin-bottom: 12px;
+}
+
+.result-title {
+  font-family: 'Baloo 2', cursive;
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+
+.result-score-big {
+  font-family: 'Baloo 2', cursive;
+  font-size: 3.5rem;
+  font-weight: 800;
+  color: var(--accent);
+  margin-bottom: 4px;
+}
+
+.result-detail {
+  color: var(--muted);
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 24px;
+}
+
+.result-words-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.word-tag {
+  padding: 6px 14px;
+  border-radius: 50px;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.word-tag.known { background: #d4edda; color: #1a7a3a; }
+.word-tag.unknown { background: #fce4e4; color: #9b1c1c; text-decoration: line-through; }
+
+.btn-restart {
+  background: var(--accent2);
+  color: white;
+  border: none;
+  border-radius: 50px;
+  padding: 14px 36px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(78,205,196,0.4);
+  transition: transform 0.15s;
+  margin: 6px;
+}
+.btn-restart:hover { transform: scale(1.05); }
+
+.btn-home {
+  background: white;
+  border: 2px solid rgba(0,0,0,0.1);
+  color: var(--text);
+  border-radius: 50px;
+  padding: 12px 30px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s;
+  margin: 6px;
+  text-decoration: none;
+  display: inline-block;
+}
+.btn-home:hover { transform: scale(1.05); }
+
+/* ===== FIREWORKS ===== */
+#fireworks-canvas {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+/* ===== LAZY EMOJIS ===== */
+.lazy-emoji {
+  position: fixed;
+  font-size: 2.5rem;
+  pointer-events: none;
+  z-index: 1001;
+  animation: float-lazy 4s ease-in-out forwards;
+  user-select: none;
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes pulse-green {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+  100% { transform: scale(1); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-8px); }
+  40% { transform: translateX(8px); }
+  60% { transform: translateX(-5px); }
+  80% { transform: translateX(5px); }
+}
+
+@keyframes pop-in {
+  from { transform: scale(0.7); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes float-lazy {
+  0% { transform: translateY(110vh) rotate(0deg) scale(0.5); opacity: 1; }
+  60% { opacity: 1; }
+  100% { transform: translateY(-10vh) rotate(720deg) scale(1.2); opacity: 0; }
+}
+
+@keyframes word-appear {
+  from { transform: translateY(-20px) scale(0.9); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.word-appear { animation: word-appear 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) both; }
+
+/* ===== LOADING STATE ===== */
+.loading-text {
+  text-align: center;
+  font-family: 'Baloo 2', cursive;
+  font-size: 1.5rem;
+  color: var(--muted);
+  padding: 60px 20px;
+  opacity: 0.6;
+}
+
+.missing-img {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 8px;
+  color: var(--muted);
+  opacity: 0.5;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-align: center;
+  padding: 8px;
+}
+
+.missing-img span { font-size: 1.8rem; }
+</style>
+</head>
+<body>
+
+<canvas id="fireworks-canvas"></canvas>
+
+<div class="top-bar">
+  <a href="index.html" class="back-btn">← Accueil</a>
+  <span class="corpus-badge" id="corpus-title"></span>
+  <span class="score-badge" id="score-badge" style="display:none">⭐ 0</span>
+</div>
+
+<!-- PLAY SCREEN -->
+<div id="play-screen">
+  <div class="progress-wrap"><div class="progress-fill" id="progress-fill"></div></div>
+  <div class="progress-label" id="progress-label"></div>
+  <div class="word-display"><h2 id="current-word" class="word-appear"></h2></div>
+  <div class="images-grid" id="images-grid"></div>
+</div>
+
+<!-- REVIEW SCREEN (every 5 words) -->
+<div id="review-screen">
+  <h2>🌟 Bravo ! Voici ce que tu as appris</h2>
+  <div class="review-grid" id="review-grid"></div>
+  <button class="btn-continue" onclick="continueAfterReview()">Continuer ➜</button>
+</div>
+
+<!-- EVAL SCREEN -->
+<div id="eval-screen">
+  <div class="eval-counter" id="eval-counter"></div>
+  <div class="eval-image-wrap" id="eval-image-wrap"></div>
+  <div class="eval-btns">
+    <button class="btn-correct" onclick="evalAnswer(true)" title="Le mot est su">✔</button>
+    <button class="btn-wrong" onclick="evalAnswer(false)" title="Le mot n'est pas su">✘</button>
+  </div>
+</div>
+
+<!-- RESULT SCREEN -->
+<div id="result-screen">
+  <div class="result-card">
+    <span class="result-emoji" id="result-emoji">🎉</span>
+    <div class="result-title" id="result-title">Résultats</div>
+    <div class="result-score-big" id="result-score-big"></div>
+    <div class="result-detail" id="result-detail"></div>
+    <div class="result-words-list" id="result-words-list"></div>
+  </div>
+  <button class="btn-restart" onclick="restartEval()">🔄 Recommencer l'évaluation</button>
+  <a href="index.html" class="btn-home">🏠 Accueil</a>
+</div>
+
+<script>
+// ===== DATA =====
+const CORPUS = [
+  { id:"recette", emoji:"🍰", title:"La recette 🍰",
+    words:["farine","oeuf","beurre","levure","sucre","sucré vanillé","épices","cannelle","cacao","chocolat","poudre d'amande","fleur d'oranger","miel","lait","gâteau","biscuits","frangipane","marbré","sablés","pâte","balance","verre doseur","saladier","bol","rouleau","fouet","emporte-pièce","cuillère","spatule","moule","fouetter","rouler/étaler","enfourner","pétrir/malaxer","verser","mélanger","sucré","salé","délicieux","dégoûtant"]
+  },
+  { id:"classe", emoji:"✏️", title:"La classe ✏️",
+    words:["crayon à papier","colle","crayon de couleur","feutre","gomme","bouchon/capuchon","peinture","ardoise","feutre effaçable","aimant","ciseaux","pinceaux","tableau","livre","dé","encre","porte-vue","classeur","table","casier","bureau","banc","chaise","poubelle","cartes","perles","jetons","dominos","présent/absent","assis(e)/debout","lettres","chiffres/nombres","graphismes","écrire","lire","compter","entourer","dessiner","coller","découper"]
+  },
+  { id:"hiver", emoji:"❄️", title:"L'hiver ❄️",
+    words:["flocon","température","verglas","givre","fourrure","mangeoire","cheminée","oranger","citronnier","galette","fève/sujet","couronne","bourgeons","gants","moufles","écharpe","cache-cou","arbre d'hiver","tronc","recouvert(e)","large","fin/fine","glissant(e)","givré(e)","frigorifié(e)","froid","chaud","hiberner/hiverner","se couvrir","geler","glisser","lentement"]
+  },
+  { id:"navet", emoji:"🥕", title:"Le navet géant 🥕",
+    words:["bois","bonhomme","femme","mari","fromages","grand-mère/père","herbe","histoire","idée","jardin","jour","journée","légume(s)","humeur","matin","mois","morceau/bout","pomme de terre","soir","bec","aliment","navet","carotte","champ","chasseur","corde","épluchure","graines","haricots","part","potager","paysan(nes)","s'accrocher","semer","tirer","chasser","mauve","puissant(e)","géant","vieux/vieille"]
+  },
+  { id:"espace", emoji:"🌟", title:"L'espace gentillesse 🌟", words:[] },
+  { id:"boucle", emoji:"👱‍♀️", title:"Boucle d'or 👱‍♀️", words:[] },
+  { id:"reine", emoji:"🧙‍♀️", title:"La reine des sorcières 🧙‍♀️", words:[] },
+  { id:"musique", emoji:"🎵", title:"La musique 🎵", words:[] }
+];
+
+// ===== INIT =====
+const params = new URLSearchParams(window.location.search);
+const corpusId = params.get('corpus') || 'recette';
+const mode = params.get('mode') || 'play';
+
+const corpusData = CORPUS.find(c => c.id === corpusId) || CORPUS[0];
+const words = corpusData.words;
+
+document.getElementById('corpus-title').textContent = corpusData.title;
+
+// ===== UTILS =====
+function wordToFilename(word) {
+  return word + '.png';
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function makeImageEl(word, containerClass) {
+  const div = document.createElement('div');
+  div.className = containerClass || 'img-card';
+  
+  const img = document.createElement('img');
+  img.src = wordToFilename(word);
+  img.alt = word;
+  img.loading = 'lazy';
+  
+  img.onerror = function() {
+    div.innerHTML = '';
+    const placeholder = document.createElement('div');
+    placeholder.className = 'missing-img';
+    placeholder.innerHTML = `<span>🖼️</span>${word}`;
+    div.appendChild(placeholder);
+  };
+  
+  div.appendChild(img);
+  
+  const label = document.createElement('div');
+  label.className = 'img-label';
+  label.textContent = word;
+  div.appendChild(label);
+  
+  const icon = document.createElement('div');
+  icon.className = 'overlay-icon';
+  div.appendChild(icon);
+  
+  return div;
+}
+
+// ===== FIREWORKS =====
+const canvas = document.getElementById('fireworks-canvas');
+const ctx = canvas.getContext('2d');
+let particles = [];
+let animFrameId = null;
+
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+function launchFirework(x, y) {
+  const colors = ['#FF6B35','#FFD166','#4ECDC4','#FF99CC','#A8EDEA','#FFC1E3','#ff6b6b','#feca57'];
+  const count = 60 + Math.floor(Math.random() * 40);
+  for (let i = 0; i < count; i++) {
+    const angle = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.3;
+    const speed = 3 + Math.random() * 8;
+    particles.push({
+      x, y,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      life: 1,
+      decay: 0.015 + Math.random() * 0.02,
+      size: 3 + Math.random() * 4,
+      gravity: 0.12
+    });
+  }
+}
+
+function launchMultipleFireworks(count) {
+  let launched = 0;
+  function doLaunch() {
+    if (launched >= count) return;
+    const x = canvas.width * (0.2 + Math.random() * 0.6);
+    const y = canvas.height * (0.1 + Math.random() * 0.5);
+    launchFirework(x, y);
+    launched++;
+    setTimeout(doLaunch, 200 + Math.random() * 300);
+  }
+  doLaunch();
+  if (!animFrameId) animateFireworks();
+}
+
+function animateFireworks() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  particles = particles.filter(p => p.life > 0.01);
+  particles.forEach(p => {
+    p.x += p.vx;
+    p.y += p.vy;
+    p.vy += p.gravity;
+    p.vx *= 0.98;
+    p.life -= p.decay;
+    ctx.globalAlpha = p.life;
+    ctx.fillStyle = p.color;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
+    ctx.fill();
+  });
+  ctx.globalAlpha = 1;
+  if (particles.length > 0) {
+    animFrameId = requestAnimationFrame(animateFireworks);
+  } else {
+    animFrameId = null;
+  }
+}
+
+function launchLazyEmojis() {
+  const emojis = ['😴','💤','🦥','😪','💤','😴','🦥','💤','😴','🦥','😪','🌙','💤','😴','🦥'];
+  for (let i = 0; i < 20; i++) {
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.className = 'lazy-emoji';
+      el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+      el.style.left = (5 + Math.random() * 90) + 'vw';
+      el.style.animationDuration = (2.5 + Math.random() * 2) + 's';
+      el.style.animationDelay = '0s';
+      el.style.fontSize = (1.5 + Math.random() * 2) + 'rem';
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 5000);
+    }, i * 150);
+  }
+}
+
+// ===== PLAY MODE =====
+let shuffledWords = [];
+let currentIndex = 0;
+let score = 0;
+let isAnswering = false;
+let reviewBuffer = []; // last 5 correctly answered words
+
+function initPlay() {
+  document.getElementById('score-badge').style.display = 'inline';
+  document.getElementById('play-screen').style.display = 'block';
+  shuffledWords = shuffle(words);
+  currentIndex = 0;
+  score = 0;
+  reviewBuffer = [];
+  loadWord();
+}
+
+function loadWord() {
+  if (currentIndex >= shuffledWords.length) {
+    showPlayFinished();
+    return;
+  }
+  isAnswering = false;
+  const word = shuffledWords[currentIndex];
+  updateProgress();
+  updateScore();
+  
+  // Display word
+  const wordEl = document.getElementById('current-word');
+  wordEl.className = '';
+  void wordEl.offsetWidth; // reflow
+  wordEl.textContent = word;
+  wordEl.className = 'word-appear';
+
+  // Pick 2 random wrong words
+  const otherWords = words.filter(w => w !== word);
+  const wrongWords = shuffle(otherWords).slice(0, 2);
+  const choices = shuffle([word, ...wrongWords]);
+
+  // Render images
+  const grid = document.getElementById('images-grid');
+  grid.innerHTML = '';
+  choices.forEach(w => {
+    const card = makeImageEl(w);
+    card.addEventListener('click', () => handleChoice(w, word, card));
+    grid.appendChild(card);
+  });
+}
+
+function handleChoice(chosen, correct, card) {
+  if (isAnswering) return;
+  isAnswering = true;
+  
+  const grid = document.getElementById('images-grid');
+  const allCards = grid.querySelectorAll('.img-card');
+  
+  if (chosen === correct) {
+    card.classList.add('correct');
+    card.querySelector('.overlay-icon').textContent = '✅';
+    score++;
+    updateScore();
+    reviewBuffer.push(correct);
+    
+    // Small firework on correct
+    const rect = card.getBoundingClientRect();
+    launchFirework(rect.left + rect.width/2, rect.top + rect.height/2);
+    if (!animFrameId) animateFireworks();
+    
+    setTimeout(() => {
+      currentIndex++;
+      // Every 5 correct words, show review
+      if (reviewBuffer.length === 5 || (currentIndex >= shuffledWords.length && reviewBuffer.length > 0)) {
+        showReview();
+      } else {
+        loadWord();
+      }
+    }, 800);
+  } else {
+    card.classList.add('wrong');
+    card.querySelector('.overlay-icon').textContent = '❌';
+    // Show correct one
+    allCards.forEach(c => {
+      const labelEl = c.querySelector('.img-label');
+      if (labelEl && labelEl.textContent === correct) {
+        c.classList.add('correct');
+        c.querySelector('.overlay-icon').textContent = '✅';
+      }
+    });
+    setTimeout(() => {
+      loadWord(); // Retry same word
+    }, 1200);
+  }
+}
+
+function updateScore() {
+  document.getElementById('score-badge').textContent = '⭐ ' + score;
+}
+
+function updateProgress() {
+  const pct = Math.round((currentIndex / shuffledWords.length) * 100);
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = currentIndex + ' / ' + shuffledWords.length + ' mots';
+}
+
+function showReview() {
+  document.getElementById('play-screen').style.display = 'none';
+  document.getElementById('review-screen').style.display = 'block';
+  
+  const grid = document.getElementById('review-grid');
+  grid.innerHTML = '';
+  reviewBuffer.forEach(word => {
+    const item = document.createElement('div');
+    item.className = 'review-item';
+    const img = document.createElement('img');
+    img.src = wordToFilename(word);
+    img.alt = word;
+    img.onerror = () => { img.style.display='none'; };
+    const label = document.createElement('div');
+    label.className = 'review-word';
+    label.textContent = word;
+    item.appendChild(img);
+    item.appendChild(label);
+    grid.appendChild(item);
+  });
+  
+  reviewBuffer = [];
+  launchMultipleFireworks(3);
+}
+
+function continueAfterReview() {
+  document.getElementById('review-screen').style.display = 'none';
+  if (currentIndex >= shuffledWords.length) {
+    showPlayFinished();
+  } else {
+    document.getElementById('play-screen').style.display = 'block';
+    loadWord();
+  }
+}
+
+function showPlayFinished() {
+  document.getElementById('play-screen').style.display = 'none';
+  document.getElementById('review-screen').style.display = 'none';
+  // Show a simple "bravo" review
+  document.getElementById('review-screen').style.display = 'block';
+  document.getElementById('review-screen').querySelector('h2').textContent = '🏆 Tu as terminé tous les mots !';
+  document.getElementById('review-grid').innerHTML = `
+    <div style="grid-column:1/-1;text-align:center;padding:20px">
+      <div style="font-family:'Baloo 2',cursive;font-size:3rem;font-weight:800;color:var(--accent)">Score : ${score} / ${shuffledWords.length}</div>
+    </div>
+  `;
+  document.getElementById('review-screen').querySelector('.btn-continue').textContent = '🏠 Accueil';
+  document.getElementById('review-screen').querySelector('.btn-continue').onclick = () => window.location.href = 'index.html';
+  launchMultipleFireworks(6);
+}
+
+// ===== EVAL MODE =====
+let evalWords = [];
+let evalIndex = 0;
+let evalCorrect = 0;
+let evalResults = []; // {word, known}
+
+function initEval() {
+  document.getElementById('eval-screen').style.display = 'block';
+  evalWords = shuffle(words);
+  evalIndex = 0;
+  evalCorrect = 0;
+  evalResults = [];
+  showEvalWord();
+}
+
+function showEvalWord() {
+  if (evalIndex >= evalWords.length) {
+    showEvalResult();
+    return;
+  }
+  const word = evalWords[evalIndex];
+  document.getElementById('eval-counter').textContent = `Mot ${evalIndex + 1} / ${evalWords.length}`;
+  
+  const wrap = document.getElementById('eval-image-wrap');
+  wrap.innerHTML = '';
+  
+  const img = document.createElement('img');
+  img.src = wordToFilename(word);
+  img.alt = word;
+  img.onerror = function() {
+    wrap.innerHTML = `<div class="eval-image-placeholder">🖼️</div><div style="margin-top:12px;font-family:'Baloo 2',cursive;font-size:1.8rem;font-weight:800;color:var(--text)">${word}</div>`;
+  };
+  img.onload = function() {
+    const label = document.createElement('div');
+    label.style.cssText = "margin-top:12px;font-family:'Baloo 2',cursive;font-size:1.8rem;font-weight:800;color:var(--text);text-align:center";
+    label.textContent = word;
+    wrap.appendChild(img);
+    wrap.appendChild(label);
+  };
+  // Attempt to add img first so onerror fires
+  wrap.appendChild(img);
+}
+
+function evalAnswer(known) {
+  const word = evalWords[evalIndex];
+  if (known) evalCorrect++;
+  evalResults.push({ word, known });
+  evalIndex++;
+  
+  // Animate transition
+  const wrap = document.getElementById('eval-image-wrap');
+  wrap.style.opacity = '0';
+  wrap.style.transform = 'scale(0.9)';
+  setTimeout(() => {
+    wrap.style.transition = 'opacity 0.25s, transform 0.25s';
+    wrap.style.opacity = '1';
+    wrap.style.transform = 'scale(1)';
+    showEvalWord();
+  }, 200);
+}
+
+function showEvalResult() {
+  document.getElementById('eval-screen').style.display = 'none';
+  document.getElementById('result-screen').style.display = 'block';
+  
+  const total = evalWords.length;
+  const pct = Math.round((evalCorrect / total) * 100);
+  
+  document.getElementById('result-score-big').textContent = evalCorrect + ' / ' + total;
+  document.getElementById('result-detail').textContent = pct + '% des mots réussis';
+  
+  if (pct === 100) {
+    document.getElementById('result-emoji').textContent = '🦥💤😴';
+    document.getElementById('result-title').textContent = 'PARFAIT !!! 100% !';
+    launchMultipleFireworks(8);
+    launchLazyEmojis();
+  } else if (pct >= 80) {
+    document.getElementById('result-emoji').textContent = '🎉';
+    document.getElementById('result-title').textContent = 'Excellent !';
+    launchMultipleFireworks(5);
+  } else if (pct >= 50) {
+    document.getElementById('result-emoji').textContent = '😊';
+    document.getElementById('result-title').textContent = 'Bien !';
+  } else {
+    document.getElementById('result-emoji').textContent = '💪';
+    document.getElementById('result-title').textContent = 'À pratiquer !';
+  }
+  
+  const list = document.getElementById('result-words-list');
+  list.innerHTML = '';
+  evalResults.forEach(r => {
+    const tag = document.createElement('span');
+    tag.className = 'word-tag ' + (r.known ? 'known' : 'unknown');
+    tag.textContent = (r.known ? '✓ ' : '✗ ') + r.word;
+    list.appendChild(tag);
+  });
+}
+
+function restartEval() {
+  document.getElementById('result-screen').style.display = 'none';
+  initEval();
+}
+
+// ===== MAIN =====
+if (words.length === 0) {
+  document.body.innerHTML += '<div class="loading-text">Ce corpus est vide.<br>Ajoute des mots dans index.html !</div>';
+} else if (mode === 'eval') {
+  initEval();
+} else {
+  initPlay();
+}
+</script>
+</body>
+</html>
