@@ -9,10 +9,10 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg: #0f0f1a;
-  --card-bg: #1a1a2e;
-  --text: #f0eee8;
-  --muted: #8a8aaa;
+  --bg: #FFF9F0;
+  --card-bg: #ffffff;
+  --text: #2d2416;
+  --muted: #7a6a55;
   --accent: #FF6B35;
   --accent2: #4ECDC4;
   --accent3: #FFD166;
@@ -146,11 +146,16 @@ body {
 }
 
 .img-slot img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  width: 88%;
+  height: 88%;
+  object-fit: contain;
   display: block;
   pointer-events: none;
+}
+
+.img-slot.img-wide img {
+  width: 70%;
+  height: 70%;
 }
 
 .img-slot .img-name {
@@ -334,7 +339,7 @@ const SERIES = [
   },
   {
     bg: "food",
-    items: ["rouler/étaler", "fouetter", "verser", "levure"],
+    items: ["rouler-étaler", "fouetter", "verser", "levure"],
     intru: 3,
     expl: "L'intrus est « levure » car rouler/étaler, fouetter et verser sont des actions — la levure est un ingrédient."
   },
@@ -394,7 +399,7 @@ const SERIES = [
   },
   {
     bg: "story",
-    items: ["vieux/vieille", "bonhomme", "paysan(nes)", "couronne"],
+    items: ["vieux-vieille", "bonhomme", "paysan(nes)", "couronne"],
     intru: 3,
     expl: "L'intrus est « couronne » car vieux/vieille, bonhomme et paysan(nes) désignent des personnes vivantes — la couronne est un objet inanimé."
   },
@@ -450,6 +455,8 @@ function buildPlaquette(serie, idx) {
   serie.items.forEach((word, i) => {
     const slot = document.createElement('div');
     slot.className = 'img-slot';
+    const wideWords = ['banc', 'table', 'tableau', 'rouleau', 'emporte-pièce', 'écharpe'];
+    if (wideWords.includes(word)) slot.classList.add('img-wide');
 
     if (emojiMap[word]) {
       // Render as big emoji instead of image
