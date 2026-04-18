@@ -107,9 +107,8 @@ body {
   border-radius: var(--radius);
   padding: 18px;
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 10px;
-  position: relative;
 }
 
 /* Pastel backgrounds per category theme */
@@ -251,31 +250,9 @@ body {
   color: #7a4f00;
 }
 
-/* ===== THEME BADGE ===== */
-.theme-badge {
-  position: absolute;
-  top: 10px;
-  left: 14px;
-  background: rgba(0,0,0,0.12);
-  border-radius: 50px;
-  padding: 3px 10px;
-  font-size: 0.7rem;
-  font-weight: 800;
-  color: rgba(0,0,0,0.45);
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  pointer-events: none;
-}
+/* ===== THEME BADGE - removed ===== */
 
-/* ===== NUMBER BADGE ===== */
-.plaquette-number {
-  font-family: 'Baloo 2', cursive;
-  font-size: 0.75rem;
-  font-weight: 800;
-  color: var(--muted);
-  margin-bottom: 6px;
-  padding-left: 4px;
-}
+/* ===== NUMBER BADGE - removed ===== */
 
 /* ===== SCORE BAR ===== */
 .score-bar {
@@ -328,164 +305,128 @@ body {
 // items = noms de fichiers (sans .png)
 // ======================================================
 
+// emoji = affichage d'un emoji à la place d'une image (pas de fichier PNG)
 const SERIES = [
-
-  // ── RECETTE vs CLASSE ─────────────────────────────
   {
-    theme: "Ustensiles de cuisine", bg: "food",
-    items: ["fouet", "rouleau", "spatule", "moule", "crayon à papier"],
-    intru: 4,
-    expl: "L'intrus est « crayon à papier » car c'est un outil de la classe, pas de la cuisine."
+    bg: "garden",
+    items: ["marron", "oeuf", "citrouille", "livre"],
+    intru: 3,
+    expl: "L'intrus est « livre » car marron, oeuf et citrouille peuvent rouler — pas le livre !"
   },
   {
-    theme: "Ingrédients sucrés", bg: "food",
-    items: ["sucre", "miel", "cannelle", "chocolat", "colle"],
-    intru: 4,
-    expl: "L'intrus est « colle » car c'est un outil de la classe, pas un ingrédient de cuisine."
+    bg: "food",
+    items: ["saladier", "bol", "moule", "emporte-pièce"],
+    intru: 3,
+    expl: "L'intrus est « emporte-pièce » car saladier, bol et moule sont des récipients — l'emporte-pièce est un outil qui découpe, pas un contenant."
   },
   {
-    theme: "On écrit avec", bg: "school",
-    items: ["crayon à papier", "feutre", "crayon de couleur", "encre", "fouet"],
-    intru: 4,
-    expl: "L'intrus est « fouet » car on l'utilise pour cuisiner, pas pour écrire."
+    bg: "food",
+    items: ["sucré", "délicieux", "dégoûtant", "balayer"],
+    intru: 3,
+    expl: "L'intrus est « balayer » car sucré, délicieux et dégoûtant décrivent le goût de quelque chose — balayer est une action, pas un goût."
   },
   {
-    theme: "Contenants / récipients", bg: "food",
-    items: ["saladier", "bol", "moule", "verre doseur", "classeur"],
-    intru: 4,
-    expl: "L'intrus est « classeur » car il sert à ranger des feuilles, pas à contenir des aliments."
+    bg: "garden",
+    items: ["hérisson", "écureuil", "_chat_", "marbré"],
+    intru: 3,
+    emoji: { "_chat_": "🐱" },
+    expl: "L'intrus est « marbré » car hérisson, écureuil et chat sont des animaux — le marbré est un gâteau."
   },
   {
-    theme: "On peut les manger", bg: "food",
-    items: ["gâteau", "biscuits", "frangipane", "sablés", "ardoise"],
-    intru: 4,
-    expl: "L'intrus est « ardoise » car c'est un objet de la classe sur lequel on écrit, pas un aliment."
-  },
-
-  // ── HIVER vs autres ──────────────────────────────
-  {
-    theme: "On porte l'hiver", bg: "winter",
-    items: ["gants", "moufles", "écharpe", "cache-cou", "rouleau"],
-    intru: 4,
-    expl: "L'intrus est « rouleau » car c'est un ustensile de cuisine, pas un vêtement d'hiver."
+    bg: "food",
+    items: ["rouler/étaler", "fouetter", "verser", "levure"],
+    intru: 3,
+    expl: "L'intrus est « levure » car rouler/étaler, fouetter et verser sont des actions — la levure est un ingrédient."
   },
   {
-    theme: "L'hiver dehors", bg: "winter",
-    items: ["flocon", "verglas", "givre", "brouillard", "classeur"],
-    intru: 4,
-    expl: "L'intrus est « classeur » car c'est un objet de classe, rien à voir avec la météo d'hiver."
+    bg: "food",
+    items: ["oeuf", "chocolat", "épices", "cuillère"],
+    intru: 3,
+    expl: "L'intrus est « cuillère » car oeuf, chocolat et épices sont des ingrédients — la cuillère est un ustensile."
   },
   {
-    theme: "Phénomènes froids", bg: "winter",
-    items: ["verglas", "givre", "flocon", "température", "galette"],
-    intru: 4,
-    expl: "L'intrus est « galette » car c'est un aliment (la galette des rois), pas un phénomène météo."
+    bg: "school",
+    items: ["banc", "chaise", "table", "ardoise"],
+    intru: 3,
+    expl: "L'intrus est « ardoise » car banc, chaise et table sont des meubles — l'ardoise est un support d'écriture."
   },
   {
-    theme: "Plantes qui résistent", bg: "winter",
-    items: ["oranger", "citronnier", "bourgeons", "arbre d'hiver", "fouet"],
-    intru: 4,
-    expl: "L'intrus est « fouet » car c'est un ustensile de cuisine, pas une plante."
+    bg: "school",
+    items: ["colle", "miel", "encre", "gland"],
+    intru: 3,
+    expl: "L'intrus est « gland » car colle, miel et encre sont des liquides ou matières visqueuses — le gland est un fruit du chêne, solide."
   },
   {
-    theme: "On fait ça en hiver", bg: "winter",
-    items: ["hiberner/hiverner", "se couvrir", "geler", "glisser", "découper"],
-    intru: 4,
-    expl: "L'intrus est « découper » car c'est une action de la classe (avec des ciseaux), pas liée à l'hiver."
-  },
-
-  // ── NAVET vs autres ──────────────────────────────
-  {
-    theme: "Légumes du potager", bg: "garden",
-    items: ["navet", "carotte", "pomme de terre", "haricots", "flocon"],
-    intru: 4,
-    expl: "L'intrus est « flocon » car c'est un phénomène météo hivernal, pas un légume du potager."
+    bg: "school",
+    items: ["dominos", "perles", "cartes", "poubelle"],
+    intru: 3,
+    expl: "L'intrus est « poubelle » car dominos, perles et cartes sont des jeux ou matériaux de jeu — la poubelle sert à jeter les déchets."
   },
   {
-    theme: "Personnages de l'histoire", bg: "story",
-    items: ["bonhomme", "femme", "mari", "grand-mère/père", "fouet"],
-    intru: 4,
-    expl: "L'intrus est « fouet » car c'est un ustensile de cuisine, pas un personnage du navet géant."
+    bg: "winter",
+    items: ["écharpe", "bottes", "gants", "râteau"],
+    intru: 3,
+    expl: "L'intrus est « râteau » car écharpe, bottes et gants sont des vêtements ou accessoires à porter — le râteau est un outil de jardinage."
   },
   {
-    theme: "Lieux et espaces", bg: "garden",
-    items: ["jardin", "champ", "potager", "bois", "saladier"],
-    intru: 4,
-    expl: "L'intrus est « saladier » car c'est un récipient de cuisine, pas un lieu."
+    bg: "garden",
+    items: ["noix", "noisette", "châtaignes", "frangipane"],
+    intru: 3,
+    expl: "L'intrus est « frangipane » car noix, noisette et châtaignes sont des fruits à coque que l'on ramasse — la frangipane est une crème pâtissière, un gâteau."
   },
   {
-    theme: "Actions du paysan", bg: "action",
-    items: ["semer", "tirer", "s'accrocher", "chasser", "enfourner"],
-    intru: 4,
-    expl: "L'intrus est « enfourner » car c'est une action de cuisine (mettre au four), pas une action du paysan."
+    bg: "garden",
+    items: ["cacao", "chocolat", "pomme de pin", "mauve"],
+    intru: 3,
+    expl: "L'intrus est « mauve » car cacao, chocolat et pomme de pin sont bruns — le mauve est une couleur violette."
   },
   {
-    theme: "Parties d'une plante", bg: "garden",
-    items: ["graines", "épluchure", "tronc", "bourgeons", "dé"],
-    intru: 4,
-    expl: "L'intrus est « dé » car c'est un objet de jeu de la classe, pas une partie de plante."
-  },
-
-  // ── CROISEMENTS INATTENDUS ────────────────────────
-  {
-    theme: "Adjectifs de goût", bg: "food",
-    items: ["sucré", "salé", "délicieux", "dégoûtant", "glissant(e)"],
-    intru: 4,
-    expl: "L'intrus est « glissant(e) » car c'est un adjectif qui décrit une surface (hiver), pas un goût."
+    bg: "garden",
+    items: ["champ", "potager", "jardin", "dedans"],
+    intru: 3,
+    expl: "L'intrus est « dedans » car champ, potager et jardin sont des espaces extérieurs — dedans signifie à l'intérieur."
   },
   {
-    theme: "Adjectifs de l'hiver", bg: "winter",
-    items: ["givré(e)", "frigorifié(e)", "glissant(e)", "recouvert(e)", "puissant(e)"],
-    intru: 4,
-    expl: "L'intrus est « puissant(e) » car il décrit un personnage du navet géant, pas une sensation hivernale."
+    bg: "winter",
+    items: ["venteux", "pluvieux", "ensoleillé", "fromages"],
+    intru: 3,
+    expl: "L'intrus est « fromages » car venteux, pluvieux et ensoleillé décrivent la météo — les fromages se mangent !"
   },
   {
-    theme: "Adjectifs du navet géant", bg: "story",
-    items: ["mauve", "puissant(e)", "géant", "vieux/vieille", "sucré"],
-    intru: 4,
-    expl: "L'intrus est « sucré » car c'est un adjectif de la recette (goût sucré), pas du monde du navet géant."
+    bg: "story",
+    items: ["vieux/vieille", "bonhomme", "paysan(nes)", "couronne"],
+    intru: 3,
+    expl: "L'intrus est « couronne » car vieux/vieille, bonhomme et paysan(nes) désignent des personnes vivantes — la couronne est un objet inanimé."
   },
   {
-    theme: "On s'en sert pour mesurer", bg: "tool",
-    items: ["balance", "verre doseur", "température", "dé", "écharpe"],
-    intru: 4,
-    expl: "L'intrus est « écharpe » car c'est un vêtement d'hiver, pas un outil de mesure."
+    bg: "winter",
+    items: ["citronnier", "oranger", "arbre d'hiver", "feuille d'érable"],
+    intru: 3,
+    expl: "L'intrus est « feuille d'érable » car citronnier, oranger et arbre d'hiver sont des arbres entiers — la feuille d'érable est juste une feuille, pas un arbre."
   },
   {
-    theme: "Mobilier de la classe", bg: "school",
-    items: ["table", "banc", "chaise", "bureau", "cheminée"],
-    intru: 4,
-    expl: "L'intrus est « cheminée » car c'est un élément de la maison (hiver), pas du mobilier scolaire."
+    bg: "winter",
+    items: ["parapluie", "pleuvoir", "flaque d'eau", "dé"],
+    intru: 3,
+    expl: "L'intrus est « dé » car parapluie, pleuvoir et flaque d'eau sont tous liés à la pluie — le dé, lui, fait des trous mais seulement dans les cuirs… et ça n'a rien à voir !"
   },
   {
-    theme: "Pour accrocher / tenir", bg: "tool",
-    items: ["aimant", "colle", "corde", "s'accrocher", "miel"],
-    intru: 4,
-    expl: "L'intrus est « miel » car c'est un aliment sucré de la recette, pas un moyen d'attacher quelque chose."
+    bg: "action",
+    items: ["entourer", "admirer", "se couvrir", "jour"],
+    intru: 3,
+    expl: "L'intrus est « jour » car entourer, admirer et se couvrir sont des actions — le jour est un moment dans le temps, pas une action."
   },
   {
-    theme: "Ce qu'on range dans la classe", bg: "school",
-    items: ["casier", "porte-vue", "classeur", "poubelle", "mangeoire"],
-    intru: 4,
-    expl: "L'intrus est « mangeoire » car c'est un objet pour nourrir les oiseaux en hiver, pas un rangement de classe."
+    bg: "garden",
+    items: ["navet", "carotte", "haricots", "sucre"],
+    intru: 3,
+    expl: "L'intrus est « sucre » car navet, carotte et haricots sont des légumes — le sucre est un ingrédient de cuisine."
   },
   {
-    theme: "Rond et petit", bg: "mixed",
-    items: ["dé", "oeuf", "perles", "jetons", "tronc"],
-    intru: 4,
-    expl: "L'intrus est « tronc » car c'est grand et allongé (un arbre), pas rond et petit."
-  },
-  {
-    theme: "On les verse ou mélange", bg: "food",
-    items: ["farine", "lait", "cacao", "miel", "jetons"],
-    intru: 4,
-    expl: "L'intrus est « jetons » car ce sont des pièces de jeu, pas des ingrédients qu'on verse ou mélange."
-  },
-  {
-    theme: "Matières naturelles douces", bg: "texture",
-    items: ["fourrure", "poudre d'amande", "farine", "givre", "cartes"],
-    intru: 4,
-    expl: "L'intrus est « cartes » car ce sont des objets de jeu en papier/plastique, pas des matières douces naturelles."
+    bg: "food",
+    items: ["gâteau", "frangipane", "marbré", "navet"],
+    intru: 3,
+    expl: "L'intrus est « navet » car gâteau, frangipane et marbré sont des pâtisseries — le navet est un légume du potager."
   }
 ];
 
@@ -500,65 +441,61 @@ function buildPlaquette(serie, idx) {
   wrap.className = 'plaquette-wrap';
   wrap.style.animationDelay = (idx * 0.04) + 's';
 
-  const num = document.createElement('div');
-  num.className = 'plaquette-number';
-  num.textContent = 'Série ' + (idx + 1);
-  wrap.appendChild(num);
-
   const plate = document.createElement('div');
   plate.className = `plaquette theme-${serie.bg}`;
 
-  // Theme badge
-  const badge = document.createElement('div');
-  badge.className = 'theme-badge';
-  badge.textContent = serie.theme;
-  plate.appendChild(badge);
-
   let answered = false;
+  const emojiMap = serie.emoji || {};
 
   serie.items.forEach((word, i) => {
     const slot = document.createElement('div');
     slot.className = 'img-slot';
 
-    const img = document.createElement('img');
-    img.src = wordToFile(word);
-    img.alt = word;
-    img.loading = 'lazy';
-    img.onerror = () => {
-      slot.innerHTML = '';
-      const ph = document.createElement('div');
-      ph.className = 'missing-ph';
-      ph.innerHTML = `<span>🖼️</span>${word}`;
-      slot.appendChild(ph);
-      slot.appendChild(makeBadge(i, serie));
-    };
+    if (emojiMap[word]) {
+      // Render as big emoji instead of image
+      const emojiEl = document.createElement('div');
+      emojiEl.style.cssText = 'font-size:4rem;line-height:1;display:flex;align-items:center;justify-content:center;width:100%;height:100%;';
+      emojiEl.textContent = emojiMap[word];
+      slot.appendChild(emojiEl);
+    } else {
+      const img = document.createElement('img');
+      img.src = wordToFile(word);
+      img.alt = word;
+      img.loading = 'lazy';
+      img.onerror = () => {
+        slot.innerHTML = '';
+        const ph = document.createElement('div');
+        ph.className = 'missing-ph';
+        ph.innerHTML = `<span>🖼️</span>${word}`;
+        slot.appendChild(ph);
+        slot.appendChild(makeBadge(i, serie));
+      };
+      slot.appendChild(img);
+    }
 
     const nameTag = document.createElement('div');
     nameTag.className = 'img-name';
-    nameTag.textContent = word;
+    nameTag.textContent = emojiMap[word] ? word.replace(/_/g,'') : word;
 
     const badge2 = makeBadge(i, serie);
 
-    slot.appendChild(img);
     slot.appendChild(nameTag);
     slot.appendChild(badge2);
 
     slot.addEventListener('click', () => {
       if (answered) return;
       if (i === serie.intru) {
-        // Correct!
         answered = true;
         score++;
         document.getElementById('score-val').textContent = score;
-        // Mark all slots
         plate.querySelectorAll('.img-slot').forEach((s, si) => {
           if (si === serie.intru) { s.classList.add('is-intru'); }
           else { s.classList.add('is-good'); }
         });
         expl.classList.add('revealed');
         expl.querySelector('.expl-icon').textContent = '✅';
+        expl.querySelector('.expl-text').textContent = serie.expl;
       } else {
-        // Wrong
         slot.classList.add('wrong-pick');
         setTimeout(() => slot.classList.remove('wrong-pick'), 400);
         expl.classList.add('wrong-revealed');
@@ -577,25 +514,10 @@ function buildPlaquette(serie, idx) {
 
   wrap.appendChild(plate);
 
-  // Explanation below
   const expl = document.createElement('div');
   expl.className = 'plaquette-expl';
   expl.innerHTML = `<span class="expl-icon">💡</span><span class="expl-text">?</span>`;
-
-  // Restore text after wrong-revealed timeout
-  Object.defineProperty(expl, '_defaultText', { value: serie.expl });
-
   wrap.appendChild(expl);
-
-  // Override revealed logic to always show correct expl
-  const origClick = plate.onclick;
-  // Watch for class change to set correct text
-  const observer = new MutationObserver(() => {
-    if (expl.classList.contains('revealed')) {
-      expl.querySelector('.expl-text').textContent = serie.expl;
-    }
-  });
-  observer.observe(expl, { attributes: true, attributeFilter: ['class'] });
 
   return wrap;
 }
