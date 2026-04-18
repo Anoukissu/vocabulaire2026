@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jeu de l'intrus</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0f0f1a;
+  --card-bg: #1a1a2e;
+  --text: #f0eee8;
+  --muted: #8a8aaa;
+  --accent: #FF6B35;
+  --accent2: #4ECDC4;
+  --accent3: #FFD166;
+  --green: #2ecc71;
+  --red: #e74c3c;
+  --radius: 20px;
+}
+
+body {
+  font-family: 'Nunito', sans-serif;
+  background: var(--bg);
+  min-height: 100vh;
+  padding: 32px 20px 80px;
+  background-image:
+    radial-gradient(ellipse at 20% 10%, rgba(255,107,53,0.07) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 90%, rgba(78,205,196,0.07) 0%, transparent 50%);
+}
+
+/* ===== TOP BAR ===== */
+.top-bar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  max-width: 900px;
+  margin: 0 auto 36px;
+}
+
+.back-btn {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 50px;
+  padding: 9px 18px;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  color: rgba(255,255,255,0.7);
+  transition: transform 0.15s, background 0.15s;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.back-btn:hover { transform: scale(1.04); background: rgba(255,255,255,0.13); }
+
+.page-title {
+  font-family: 'Baloo 2', cursive;
+  font-size: clamp(1.4rem, 4vw, 1.9rem);
+  font-weight: 800;
+  color: var(--text);
+  flex: 1;
+}
+
+.page-title span { color: var(--accent); }
+
+/* ===== LEGEND ===== */
+.legend {
+  max-width: 900px;
+  margin: 0 auto 32px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 14px;
+  padding: 14px 20px;
+  border: 1px solid rgba(255,255,255,0.08);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.9rem;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+/* ===== PLAQUETTES STACK ===== */
+.plaquettes-list {
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* ===== ONE PLAQUETTE ===== */
+.plaquette-wrap {
+  animation: slide-in 0.4s ease both;
+}
+
+@keyframes slide-in {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.plaquette {
+  border-radius: var(--radius);
+  padding: 18px;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  position: relative;
+}
+
+/* Pastel backgrounds per category theme */
+.plaquette.theme-food    { background: #fff5e6; }
+.plaquette.theme-school  { background: #e8f4fd; }
+.plaquette.theme-winter  { background: #eaf7f5; }
+.plaquette.theme-garden  { background: #edf7e6; }
+.plaquette.theme-action  { background: #f5eeff; }
+.plaquette.theme-texture { background: #fff0f5; }
+.plaquette.theme-size    { background: #fdf5e6; }
+.plaquette.theme-feeling { background: #e6f0ff; }
+.plaquette.theme-story   { background: #fef5e6; }
+.plaquette.theme-tool    { background: #f0fff4; }
+.plaquette.theme-mixed   { background: #f5f0ff; }
+
+/* ===== IMAGE SLOT ===== */
+.img-slot {
+  aspect-ratio: 1 / 1;
+  border-radius: 13px;
+  overflow: hidden;
+  background: rgba(255,255,255,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  transition: transform 0.18s, box-shadow 0.18s;
+  border: 2px solid transparent;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.img-slot:hover {
+  transform: scale(1.06);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.16);
+}
+
+.img-slot img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  pointer-events: none;
+}
+
+.img-slot .img-name {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  background: rgba(0,0,0,0.5);
+  color: white;
+  text-align: center;
+  padding: 4px 6px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+}
+.img-slot:hover .img-name { opacity: 1; }
+
+.img-slot .missing-ph {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 4px;
+  color: #aaa;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-align: center;
+  padding: 6px;
+  opacity: 0.7;
+}
+.img-slot .missing-ph span { font-size: 1.4rem; }
+
+/* States after reveal */
+.img-slot.is-intru {
+  border-color: var(--red);
+  box-shadow: 0 0 0 3px rgba(231,76,60,0.35);
+}
+.img-slot.is-good {
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(46,204,113,0.25);
+}
+.img-slot.wrong-pick {
+  border-color: #f39c12;
+  box-shadow: 0 0 0 3px rgba(243,156,18,0.35);
+  animation: wobble 0.35s ease;
+}
+
+@keyframes wobble {
+  0%,100%{ transform: rotate(0deg); }
+  25%    { transform: rotate(-4deg); }
+  75%    { transform: rotate(4deg); }
+}
+
+/* Overlay badge */
+.slot-badge {
+  position: absolute;
+  top: 5px; right: 5px;
+  font-size: 1.3rem;
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+  filter: drop-shadow(0 1px 3px rgba(0,0,0,0.4));
+}
+.img-slot.is-intru .slot-badge,
+.img-slot.is-good .slot-badge { opacity: 1; }
+
+/* ===== EXPLANATION ===== */
+.plaquette-expl {
+  margin-top: 10px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  background: rgba(0,0,0,0.06);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #555;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  min-height: 36px;
+  border-left: 3px solid transparent;
+  transition: background 0.3s, border-color 0.3s, color 0.3s;
+}
+
+.plaquette-expl .expl-icon { font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
+.plaquette-expl .expl-text { flex: 1; line-height: 1.5; }
+
+.plaquette-expl.revealed {
+  background: rgba(46,204,113,0.12);
+  border-color: var(--green);
+  color: #1a5c34;
+}
+.plaquette-expl.wrong-revealed {
+  background: rgba(243,156,18,0.12);
+  border-color: #f39c12;
+  color: #7a4f00;
+}
+
+/* ===== THEME BADGE ===== */
+.theme-badge {
+  position: absolute;
+  top: 10px;
+  left: 14px;
+  background: rgba(0,0,0,0.12);
+  border-radius: 50px;
+  padding: 3px 10px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: rgba(0,0,0,0.45);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+/* ===== NUMBER BADGE ===== */
+.plaquette-number {
+  font-family: 'Baloo 2', cursive;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--muted);
+  margin-bottom: 6px;
+  padding-left: 4px;
+}
+
+/* ===== SCORE BAR ===== */
+.score-bar {
+  max-width: 900px;
+  margin: 0 auto 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.score-pill {
+  background: rgba(255,209,102,0.15);
+  border: 1px solid rgba(255,209,102,0.3);
+  border-radius: 50px;
+  padding: 8px 20px;
+  font-family: 'Baloo 2', cursive;
+  font-weight: 800;
+  font-size: 1rem;
+  color: var(--accent3);
+}
+
+@media (max-width: 500px) {
+  .plaquette { gap: 6px; padding: 12px; }
+  .img-slot { border-radius: 9px; }
+  body { padding: 20px 12px 60px; }
+}
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <a href="index.html" class="back-btn">← Accueil</a>
+  <div class="page-title">Jeu de <span>l'intrus</span> 🔍</div>
+</div>
+
+<div class="legend">
+  <span>👆</span>
+  <span>Clique sur l'image qui ne va pas avec les autres. L'explication apparaît en dessous !</span>
+</div>
+
+<div class="score-bar">
+  <div class="score-pill">✅ <span id="score-val">0</span> / <span id="score-total">0</span> trouvés</div>
+</div>
+
+<div class="plaquettes-list" id="plaquettes-list"></div>
+
+<script>
+// ======================================================
+// DATA — les séries d'intrus
+// Chaque entrée : { theme, bg, items[5], intru (index 0-4), explication }
+// items = noms de fichiers (sans .png)
+// ======================================================
+
+const SERIES = [
+
+  // ── RECETTE vs CLASSE ─────────────────────────────
+  {
+    theme: "Ustensiles de cuisine", bg: "food",
+    items: ["fouet", "rouleau", "spatule", "moule", "crayon à papier"],
+    intru: 4,
+    expl: "L'intrus est « crayon à papier » car c'est un outil de la classe, pas de la cuisine."
+  },
+  {
+    theme: "Ingrédients sucrés", bg: "food",
+    items: ["sucre", "miel", "cannelle", "chocolat", "colle"],
+    intru: 4,
+    expl: "L'intrus est « colle » car c'est un outil de la classe, pas un ingrédient de cuisine."
+  },
+  {
+    theme: "On écrit avec", bg: "school",
+    items: ["crayon à papier", "feutre", "crayon de couleur", "encre", "fouet"],
+    intru: 4,
+    expl: "L'intrus est « fouet » car on l'utilise pour cuisiner, pas pour écrire."
+  },
+  {
+    theme: "Contenants / récipients", bg: "food",
+    items: ["saladier", "bol", "moule", "verre doseur", "classeur"],
+    intru: 4,
+    expl: "L'intrus est « classeur » car il sert à ranger des feuilles, pas à contenir des aliments."
+  },
+  {
+    theme: "On peut les manger", bg: "food",
+    items: ["gâteau", "biscuits", "frangipane", "sablés", "ardoise"],
+    intru: 4,
+    expl: "L'intrus est « ardoise » car c'est un objet de la classe sur lequel on écrit, pas un aliment."
+  },
+
+  // ── HIVER vs autres ──────────────────────────────
+  {
+    theme: "On porte l'hiver", bg: "winter",
+    items: ["gants", "moufles", "écharpe", "cache-cou", "rouleau"],
+    intru: 4,
+    expl: "L'intrus est « rouleau » car c'est un ustensile de cuisine, pas un vêtement d'hiver."
+  },
+  {
+    theme: "L'hiver dehors", bg: "winter",
+    items: ["flocon", "verglas", "givre", "brouillard", "classeur"],
+    intru: 4,
+    expl: "L'intrus est « classeur » car c'est un objet de classe, rien à voir avec la météo d'hiver."
+  },
+  {
+    theme: "Phénomènes froids", bg: "winter",
+    items: ["verglas", "givre", "flocon", "température", "galette"],
+    intru: 4,
+    expl: "L'intrus est « galette » car c'est un aliment (la galette des rois), pas un phénomène météo."
+  },
+  {
+    theme: "Plantes qui résistent", bg: "winter",
+    items: ["oranger", "citronnier", "bourgeons", "arbre d'hiver", "fouet"],
+    intru: 4,
+    expl: "L'intrus est « fouet » car c'est un ustensile de cuisine, pas une plante."
+  },
+  {
+    theme: "On fait ça en hiver", bg: "winter",
+    items: ["hiberner/hiverner", "se couvrir", "geler", "glisser", "découper"],
+    intru: 4,
+    expl: "L'intrus est « découper » car c'est une action de la classe (avec des ciseaux), pas liée à l'hiver."
+  },
+
+  // ── NAVET vs autres ──────────────────────────────
+  {
+    theme: "Légumes du potager", bg: "garden",
+    items: ["navet", "carotte", "pomme de terre", "haricots", "flocon"],
+    intru: 4,
+    expl: "L'intrus est « flocon » car c'est un phénomène météo hivernal, pas un légume du potager."
+  },
+  {
+    theme: "Personnages de l'histoire", bg: "story",
+    items: ["bonhomme", "femme", "mari", "grand-mère/père", "fouet"],
+    intru: 4,
+    expl: "L'intrus est « fouet » car c'est un ustensile de cuisine, pas un personnage du navet géant."
+  },
+  {
+    theme: "Lieux et espaces", bg: "garden",
+    items: ["jardin", "champ", "potager", "bois", "saladier"],
+    intru: 4,
+    expl: "L'intrus est « saladier » car c'est un récipient de cuisine, pas un lieu."
+  },
+  {
+    theme: "Actions du paysan", bg: "action",
+    items: ["semer", "tirer", "s'accrocher", "chasser", "enfourner"],
+    intru: 4,
+    expl: "L'intrus est « enfourner » car c'est une action de cuisine (mettre au four), pas une action du paysan."
+  },
+  {
+    theme: "Parties d'une plante", bg: "garden",
+    items: ["graines", "épluchure", "tronc", "bourgeons", "dé"],
+    intru: 4,
+    expl: "L'intrus est « dé » car c'est un objet de jeu de la classe, pas une partie de plante."
+  },
+
+  // ── CROISEMENTS INATTENDUS ────────────────────────
+  {
+    theme: "Adjectifs de goût", bg: "food",
+    items: ["sucré", "salé", "délicieux", "dégoûtant", "glissant(e)"],
+    intru: 4,
+    expl: "L'intrus est « glissant(e) » car c'est un adjectif qui décrit une surface (hiver), pas un goût."
+  },
+  {
+    theme: "Adjectifs de l'hiver", bg: "winter",
+    items: ["givré(e)", "frigorifié(e)", "glissant(e)", "recouvert(e)", "puissant(e)"],
+    intru: 4,
+    expl: "L'intrus est « puissant(e) » car il décrit un personnage du navet géant, pas une sensation hivernale."
+  },
+  {
+    theme: "Adjectifs du navet géant", bg: "story",
+    items: ["mauve", "puissant(e)", "géant", "vieux/vieille", "sucré"],
+    intru: 4,
+    expl: "L'intrus est « sucré » car c'est un adjectif de la recette (goût sucré), pas du monde du navet géant."
+  },
+  {
+    theme: "On s'en sert pour mesurer", bg: "tool",
+    items: ["balance", "verre doseur", "température", "dé", "écharpe"],
+    intru: 4,
+    expl: "L'intrus est « écharpe » car c'est un vêtement d'hiver, pas un outil de mesure."
+  },
+  {
+    theme: "Mobilier de la classe", bg: "school",
+    items: ["table", "banc", "chaise", "bureau", "cheminée"],
+    intru: 4,
+    expl: "L'intrus est « cheminée » car c'est un élément de la maison (hiver), pas du mobilier scolaire."
+  },
+  {
+    theme: "Pour accrocher / tenir", bg: "tool",
+    items: ["aimant", "colle", "corde", "s'accrocher", "miel"],
+    intru: 4,
+    expl: "L'intrus est « miel » car c'est un aliment sucré de la recette, pas un moyen d'attacher quelque chose."
+  },
+  {
+    theme: "Ce qu'on range dans la classe", bg: "school",
+    items: ["casier", "porte-vue", "classeur", "poubelle", "mangeoire"],
+    intru: 4,
+    expl: "L'intrus est « mangeoire » car c'est un objet pour nourrir les oiseaux en hiver, pas un rangement de classe."
+  },
+  {
+    theme: "Rond et petit", bg: "mixed",
+    items: ["dé", "oeuf", "perles", "jetons", "tronc"],
+    intru: 4,
+    expl: "L'intrus est « tronc » car c'est grand et allongé (un arbre), pas rond et petit."
+  },
+  {
+    theme: "On les verse ou mélange", bg: "food",
+    items: ["farine", "lait", "cacao", "miel", "jetons"],
+    intru: 4,
+    expl: "L'intrus est « jetons » car ce sont des pièces de jeu, pas des ingrédients qu'on verse ou mélange."
+  },
+  {
+    theme: "Matières naturelles douces", bg: "texture",
+    items: ["fourrure", "poudre d'amande", "farine", "givre", "cartes"],
+    intru: 4,
+    expl: "L'intrus est « cartes » car ce sont des objets de jeu en papier/plastique, pas des matières douces naturelles."
+  }
+];
+
+// ======================================================
+let score = 0;
+document.getElementById('score-total').textContent = SERIES.length;
+
+function wordToFile(w) { return w + '.png'; }
+
+function buildPlaquette(serie, idx) {
+  const wrap = document.createElement('div');
+  wrap.className = 'plaquette-wrap';
+  wrap.style.animationDelay = (idx * 0.04) + 's';
+
+  const num = document.createElement('div');
+  num.className = 'plaquette-number';
+  num.textContent = 'Série ' + (idx + 1);
+  wrap.appendChild(num);
+
+  const plate = document.createElement('div');
+  plate.className = `plaquette theme-${serie.bg}`;
+
+  // Theme badge
+  const badge = document.createElement('div');
+  badge.className = 'theme-badge';
+  badge.textContent = serie.theme;
+  plate.appendChild(badge);
+
+  let answered = false;
+
+  serie.items.forEach((word, i) => {
+    const slot = document.createElement('div');
+    slot.className = 'img-slot';
+
+    const img = document.createElement('img');
+    img.src = wordToFile(word);
+    img.alt = word;
+    img.loading = 'lazy';
+    img.onerror = () => {
+      slot.innerHTML = '';
+      const ph = document.createElement('div');
+      ph.className = 'missing-ph';
+      ph.innerHTML = `<span>🖼️</span>${word}`;
+      slot.appendChild(ph);
+      slot.appendChild(makeBadge(i, serie));
+    };
+
+    const nameTag = document.createElement('div');
+    nameTag.className = 'img-name';
+    nameTag.textContent = word;
+
+    const badge2 = makeBadge(i, serie);
+
+    slot.appendChild(img);
+    slot.appendChild(nameTag);
+    slot.appendChild(badge2);
+
+    slot.addEventListener('click', () => {
+      if (answered) return;
+      if (i === serie.intru) {
+        // Correct!
+        answered = true;
+        score++;
+        document.getElementById('score-val').textContent = score;
+        // Mark all slots
+        plate.querySelectorAll('.img-slot').forEach((s, si) => {
+          if (si === serie.intru) { s.classList.add('is-intru'); }
+          else { s.classList.add('is-good'); }
+        });
+        expl.classList.add('revealed');
+        expl.querySelector('.expl-icon').textContent = '✅';
+      } else {
+        // Wrong
+        slot.classList.add('wrong-pick');
+        setTimeout(() => slot.classList.remove('wrong-pick'), 400);
+        expl.classList.add('wrong-revealed');
+        expl.querySelector('.expl-icon').textContent = '❌';
+        expl.querySelector('.expl-text').textContent = 'Pas celui-là… essaie encore !';
+        setTimeout(() => {
+          expl.classList.remove('wrong-revealed');
+          expl.querySelector('.expl-icon').textContent = '💡';
+          expl.querySelector('.expl-text').textContent = '?';
+        }, 1200);
+      }
+    });
+
+    plate.appendChild(slot);
+  });
+
+  wrap.appendChild(plate);
+
+  // Explanation below
+  const expl = document.createElement('div');
+  expl.className = 'plaquette-expl';
+  expl.innerHTML = `<span class="expl-icon">💡</span><span class="expl-text">?</span>`;
+
+  // Restore text after wrong-revealed timeout
+  Object.defineProperty(expl, '_defaultText', { value: serie.expl });
+
+  wrap.appendChild(expl);
+
+  // Override revealed logic to always show correct expl
+  const origClick = plate.onclick;
+  // Watch for class change to set correct text
+  const observer = new MutationObserver(() => {
+    if (expl.classList.contains('revealed')) {
+      expl.querySelector('.expl-text').textContent = serie.expl;
+    }
+  });
+  observer.observe(expl, { attributes: true, attributeFilter: ['class'] });
+
+  return wrap;
+}
+
+function makeBadge(i, serie) {
+  const b = document.createElement('div');
+  b.className = 'slot-badge';
+  b.textContent = (i === serie.intru) ? '❌' : '✅';
+  return b;
+}
+
+// Build all plaquettes
+const list = document.getElementById('plaquettes-list');
+SERIES.forEach((s, i) => list.appendChild(buildPlaquette(s, i)));
+</script>
+</body>
+</html>
