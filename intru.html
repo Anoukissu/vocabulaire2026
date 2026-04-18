@@ -283,6 +283,83 @@ body {
   .img-slot { border-radius: 9px; }
   body { padding: 20px 12px 60px; }
 }
+
+/* ===== BOUTON PDF ===== */
+.btn-pdf {
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 50px;
+  padding: 9px 18px;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 3px 10px rgba(255,107,53,0.3);
+  transition: transform 0.15s, box-shadow 0.15s;
+  white-space: nowrap;
+}
+.btn-pdf:hover { transform: scale(1.05); box-shadow: 0 5px 16px rgba(255,107,53,0.4); }
+
+/* ===== IMPRESSION ===== */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 12mm 10mm;
+  }
+
+  /* Masquer tout l'UI sauf les plaquettes */
+  .top-bar, .legend, .score-bar { display: none !important; }
+
+  body {
+    background: white !important;
+    background-image: none !important;
+    padding: 0 !important;
+  }
+
+  .plaquettes-list {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    gap: 10mm;
+    max-width: 100%;
+  }
+
+  .plaquette-wrap {
+    animation: none !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Masquer les explications */
+  .plaquette-expl { display: none !important; }
+
+  /* Conserver les fonds pastel des plaquettes */
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+  .plaquette {
+    padding: 10px;
+    gap: 6px;
+    border-radius: 12px;
+  }
+
+  .img-slot {
+    border-radius: 8px;
+    box-shadow: none !important;
+    border: 1.5px solid rgba(0,0,0,0.08) !important;
+  }
+
+  /* Masquer les badges ✅/❌ et les états révélés */
+  .slot-badge { display: none !important; }
+  .img-slot.is-intru, .img-slot.is-good {
+    border-color: rgba(0,0,0,0.08) !important;
+    box-shadow: none !important;
+  }
+
+  .img-slot .img-name { display: none !important; }
+}
 </style>
 </head>
 <body>
@@ -290,6 +367,7 @@ body {
 <div class="top-bar">
   <a href="index.html" class="back-btn">← Accueil</a>
   <div class="page-title">Jeu de <span>l'intrus</span> 🔍</div>
+  <button class="btn-pdf" onclick="window.print()">🖨️ Imprimer / PDF</button>
 </div>
 
 <div class="legend">
