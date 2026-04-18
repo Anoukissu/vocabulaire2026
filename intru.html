@@ -392,20 +392,20 @@ body {
 const SERIES = [
   {
     bg: "garden",
-    items: ["marron", "oeuf", "citrouille", "livre"],
-    intru: 3,
+    items: ["livre", "marron", "oeuf", "citrouille"],
+    intru: 0,
     expl: "L'intrus est « livre » car marron, oeuf et citrouille peuvent rouler — pas le livre !"
   },
   {
     bg: "food",
-    items: ["saladier", "bol", "moule", "emporte-pièce"],
-    intru: 3,
+    items: ["saladier", "emporte-pièce", "bol", "moule"],
+    intru: 1,
     expl: "L'intrus est « emporte-pièce » car saladier, bol et moule sont des récipients — l'emporte-pièce est un outil qui découpe, pas un contenant."
   },
   {
     bg: "food",
-    items: ["sucré", "délicieux", "dégoûtant", "balayer"],
-    intru: 3,
+    items: ["sucré", "délicieux", "balayer", "dégoûtant"],
+    intru: 2,
     expl: "L'intrus est « balayer » car sucré, délicieux et dégoûtant décrivent le goût de quelque chose — balayer est une action, pas un goût."
   },
   {
@@ -417,20 +417,20 @@ const SERIES = [
   },
   {
     bg: "food",
-    items: ["rouler-étaler", "fouetter", "verser", "levure"],
-    intru: 3,
+    items: ["levure", "rouler-étaler", "fouetter", "verser"],
+    intru: 0,
     expl: "L'intrus est « levure » car rouler/étaler, fouetter et verser sont des actions — la levure est un ingrédient."
   },
   {
     bg: "food",
-    items: ["oeuf", "chocolat", "épices", "cuillère"],
-    intru: 3,
+    items: ["oeuf", "cuillère", "chocolat", "épices"],
+    intru: 1,
     expl: "L'intrus est « cuillère » car oeuf, chocolat et épices sont des ingrédients — la cuillère est un ustensile."
   },
   {
     bg: "school",
-    items: ["banc", "chaise", "table", "ardoise"],
-    intru: 3,
+    items: ["banc", "chaise", "ardoise", "table"],
+    intru: 2,
     expl: "L'intrus est « ardoise » car banc, chaise et table sont des meubles — l'ardoise est un support d'écriture."
   },
   {
@@ -441,20 +441,20 @@ const SERIES = [
   },
   {
     bg: "school",
-    items: ["dominos", "perles", "cartes", "poubelle"],
-    intru: 3,
+    items: ["poubelle", "dominos", "perles", "cartes"],
+    intru: 0,
     expl: "L'intrus est « poubelle » car dominos, perles et cartes sont des jeux ou matériaux de jeu — la poubelle sert à jeter les déchets."
   },
   {
     bg: "winter",
-    items: ["écharpe", "bottes", "gants", "râteau"],
-    intru: 3,
+    items: ["écharpe", "râteau", "bottes", "gants"],
+    intru: 1,
     expl: "L'intrus est « râteau » car écharpe, bottes et gants sont des vêtements ou accessoires à porter — le râteau est un outil de jardinage."
   },
   {
     bg: "garden",
-    items: ["noix", "noisette", "châtaignes", "frangipane"],
-    intru: 3,
+    items: ["noix", "noisette", "frangipane", "châtaignes"],
+    intru: 2,
     expl: "L'intrus est « frangipane » car noix, noisette et châtaignes sont des fruits à coque que l'on ramasse — la frangipane est une crème pâtissière, un gâteau."
   },
   {
@@ -465,20 +465,20 @@ const SERIES = [
   },
   {
     bg: "garden",
-    items: ["champ", "potager", "jardin", "dedans"],
-    intru: 3,
+    items: ["dedans", "champ", "potager", "jardin"],
+    intru: 0,
     expl: "L'intrus est « dedans » car champ, potager et jardin sont des espaces extérieurs — dedans signifie à l'intérieur."
   },
   {
     bg: "winter",
-    items: ["venteux", "pluvieux", "ensoleillé", "fromages"],
-    intru: 3,
+    items: ["venteux", "fromages", "pluvieux", "ensoleillé"],
+    intru: 1,
     expl: "L'intrus est « fromages » car venteux, pluvieux et ensoleillé décrivent la météo — les fromages se mangent !"
   },
   {
     bg: "story",
-    items: ["vieux-vieille", "bonhomme", "paysan(nes)", "couronne"],
-    intru: 3,
+    items: ["vieux-vieille", "bonhomme", "couronne", "paysan(nes)"],
+    intru: 2,
     expl: "L'intrus est « couronne » car vieux/vieille, bonhomme et paysan(nes) désignent des personnes vivantes — la couronne est un objet inanimé."
   },
   {
@@ -489,20 +489,20 @@ const SERIES = [
   },
   {
     bg: "winter",
-    items: ["parapluie", "pleuvoir", "flaque d'eau", "dé"],
-    intru: 3,
+    items: ["dé", "parapluie", "pleuvoir", "flaque d'eau"],
+    intru: 0,
     expl: "L'intrus est « dé » car parapluie, pleuvoir et flaque d'eau sont tous liés à la pluie — le dé, lui, fait des trous mais seulement dans les cuirs… et ça n'a rien à voir !"
   },
   {
     bg: "action",
-    items: ["entourer", "admirer", "se couvrir", "jour"],
-    intru: 3,
+    items: ["entourer", "jour", "admirer", "se couvrir"],
+    intru: 1,
     expl: "L'intrus est « jour » car entourer, admirer et se couvrir sont des actions — le jour est un moment dans le temps, pas une action."
   },
   {
     bg: "garden",
-    items: ["navet", "carotte", "haricots", "sucre"],
-    intru: 3,
+    items: ["navet", "carotte", "sucre", "haricots"],
+    intru: 2,
     expl: "L'intrus est « sucre » car navet, carotte et haricots sont des légumes — le sucre est un ingrédient de cuisine."
   },
   {
